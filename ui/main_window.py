@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        # Sidebar
+        
         sidebar = QWidget(); sidebar.setObjectName("sidebar")
         sb = QVBoxLayout(sidebar)
         sb.setContentsMargins(8, 0, 8, 16)
@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
         sb.addWidget(self.sync_btn)
         root.addWidget(sidebar)
 
-        # Pages
+        
         self.stack = QStackedWidget()
         root.addWidget(self.stack, 1)
 
@@ -146,20 +146,20 @@ class MainWindow(QMainWindow):
                 page.refresh()
 
     def _setup_timers(self):
-        # Full sync every 30 min
+      
         self.sync_timer = QTimer(self)
         self.sync_timer.setInterval(30 * 60 * 1000)
         self.sync_timer.timeout.connect(self._background_sync)
         self.sync_timer.start()
 
-        # Live scores + notifications every 60 s
+        
         self.live_timer = QTimer(self)
         self.live_timer.setInterval(60_000)
         self.live_timer.timeout.connect(self._live_tick)
         self.live_timer.start()
 
     def _live_tick(self):
-        # Live score update
+        
         from services.sync_service import sync_live_scores
         try:
             updated = sync_live_scores()
@@ -170,14 +170,14 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             logger.warning("Live tick error: %s", exc)
 
-        # Notifications
+      
         try:
             from services.notification_service import check_and_notify
             check_and_notify()
         except Exception as exc:
             logger.debug("Notification check error: %s", exc)
 
-        # Tick countdown widget on dashboard without full refresh
+        
         dash = self.pages.get("Dashboard")
         if dash and hasattr(dash, "_countdown"):
             dash._countdown._tick()
@@ -228,7 +228,7 @@ class MainWindow(QMainWindow):
             f"✅  Synced {matches} matches, {teams} teams from {source}  •  Just now"
         )
         self._user_initiated_sync = False
-        # Refresh favourites grid in settings (teams may have loaded)
+        
         settings = self.pages.get("Settings")
         if settings and hasattr(settings, "_populate_fav_grid"):
             settings._populate_fav_grid()
