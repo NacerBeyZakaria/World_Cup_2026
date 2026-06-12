@@ -12,10 +12,10 @@ import sys
 import os
 import logging
 
-# Ensure the package root is on the path when running directly
+
 sys.path.insert(0, os.path.dirname(__file__))
 
-# ── Logging ────────────────────────────────────────────────────────────────────
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s  %(levelname)-8s  %(name)s: %(message)s",
@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("worldcup")
 
-# ── Qt bootstrap ──────────────────────────────────────────────────────────────
+
 try:
     from PyQt6.QtWidgets import QApplication
     from PyQt6.QtGui import QFont
@@ -40,11 +40,11 @@ def main():
     app.setApplicationName("FIFA World Cup 2026 Tracker")
     app.setOrganizationName("WorldCupTracker")
 
-    # Use a clean system font
+
     font = QFont("Segoe UI", 10)
     app.setFont(font)
 
-    # High-DPI support
+
     try:
         app.setHighDpiScaleFactorRoundingPolicy(
             Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
