@@ -24,7 +24,7 @@ from services.api_service import get_service, APIError, MissingAPIKeyError
 logger = logging.getLogger(__name__)
 
 
-# ── Internal helpers ───────────────────────────────────────────────────────────
+
 
 def _build_id_map() -> dict[int, int]:
     """Return {api_team_id: local_db_id} for all teams already in the DB."""
@@ -46,7 +46,7 @@ def _save_teams(teams: list[dict]) -> dict[int, int]:
             api_team_id=api_id,
             fifa_code=t.get("fifa_code", ""),
             name=t["name"],
-            group_name=t.get("group_name"),   # may still be None here; filled below
+            group_name=t.get("group_name"),  
             flag_url=t.get("flag_url", ""),
         )
         row = get_team_by_api_id(api_id)
@@ -62,7 +62,7 @@ def _apply_group_names_from_fixtures(fixtures: list[dict], id_map: dict[int, int
     Walk the group-stage fixtures and patch each team's group_name in the DB.
     """
     from database.database import db_cursor
-    group_updates: dict[int, str] = {}  # local_team_id → group letter
+    group_updates: dict[int, str] = {}  
 
     for f in fixtures:
         grp = f.get("group_name", "")
@@ -101,7 +101,7 @@ def _save_fixtures(fixtures: list[dict], id_map: dict[int, int]) -> int:
         w_id  = id_map.get(f["winner_api_id"]) if f.get("winner_api_id") else None
 
         if h_id is None or a_id is None:
-            # TBD knockout slot — persist it so the bracket stage appears
+            
             upsert_tbd_match(
                 api_match_id=f["api_match_id"],
                 match_date=f["match_date"],
@@ -136,7 +136,7 @@ def _save_fixtures(fixtures: list[dict], id_map: dict[int, int]) -> int:
     return count
 
 
-# ── Public API ─────────────────────────────────────────────────────────────────
+
 
 def run_sync() -> dict:
     """
@@ -215,14 +215,13 @@ def sync_live_scores() -> int:
         id_map = _build_id_map()
         total  = 0
 
-        # Step 1: currently live matches
+        
         live_fixtures = svc.fetch_live_fixtures()
         if live_fixtures:
             total += _save_fixtures(live_fixtures, id_map)
             logger.debug("Live poll: updated %d in-play fixtures", len(live_fixtures))
 
-        # Step 2: matches still "Live" in DB but absent from live feed
-        # → they just finished; fetch each one for the final score
+        
         live_api_ids = {f["api_match_id"] for f in live_fixtures}
         stale = _get_stale_live_matches(live_api_ids)
         for match in stale:
