@@ -26,7 +26,7 @@ from PyQt6.QtGui import QFont, QCursor
 from database.database import get_all_teams, get_all_matches_with_teams
 
 
-# ── Data model ─────────────────────────────────────────────────────────────────
+
 
 @dataclass
 class TeamStanding:
@@ -100,24 +100,23 @@ def _elimination_status(ts: TeamStanding, pos: int, group_size: int,
     Returns 'qualified' | 'potential' | 'eliminated' | 'contention'.
     Simple heuristic — a proper calculation requires simulating all outcomes.
     """
-    total_group_games = 6   # 4 teams, each plays 3 → 6 matches total
-    if pos < 2:             # top 2 after all games played
+    total_group_games = 6  
+    if pos < 2:           
         return "qualified" if matches_played_in_group == total_group_games else "contention"
     if pos == 2:
         return "contention"
     if pos == 3:
         return "potential"
-    # 4th place: eliminated if they cannot reach 2nd
+   
     max_possible_pts = ts.points + (3 - ts.played) * 3
-    if max_possible_pts < 4:   # practically impossible to qualify as best-3rd
+    if max_possible_pts < 4:   
         return "eliminated"
     return "contention"
 
 
-# ── Column spec ────────────────────────────────────────────────────────────────
 
 _COLS = [
-    # (abbr, tooltip,      w,   align)
+   
     ("#",  "Position",    28,  Qt.AlignmentFlag.AlignCenter),
     ("",   "Team",       168,  Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter),
     ("MP", "Played",      34,  Qt.AlignmentFlag.AlignCenter),
@@ -131,7 +130,7 @@ _COLS = [
 ]
 
 _STATUS_COLORS = {
-    "qualified":  ("#3fb950", "#1a4731"),   # fg, bg
+    "qualified":  ("#3fb950", "#1a4731"),   
     "potential":  ("#d29922", "#2d2000"),
     "eliminated": ("#f85149", "#3d1f1f"),
     "contention": ("#e6edf3", "transparent"),
@@ -139,7 +138,7 @@ _STATUS_COLORS = {
 
 
 class _TeamRow(QWidget):
-    clicked = pyqtSignal(int)   # team_id
+    clicked = pyqtSignal(int)  
 
     def __init__(self, pos: int, ts: TeamStanding, status: str):
         super().__init__()
@@ -166,11 +165,11 @@ class _TeamRow(QWidget):
             )
             return l
 
-        # Position
+        
         lay.addWidget(cell(pos + 1, _COLS[0][2], _COLS[0][3],
                            bold=True, color=fg))
 
-        # Team name
+        
         name_lbl = QLabel(ts.name)
         name_lbl.setFixedWidth(_COLS[1][2])
         name_lbl.setAlignment(_COLS[1][3])
@@ -181,7 +180,7 @@ class _TeamRow(QWidget):
         name_lbl.setToolTip(f"Click to view {ts.name} details")
         lay.addWidget(name_lbl)
 
-        # Stats
+        
         gd_txt  = f"{ts.gd:+d}" if ts.played > 0 else "—"
         gd_col  = "#3fb950" if ts.gd > 0 else ("#f85149" if ts.gd < 0 else fg)
         stats = [
@@ -208,7 +207,7 @@ class _TeamRow(QWidget):
         )
 
     def leaveEvent(self, e):
-        # Re-apply original background
+       
         pass
 
 
@@ -242,7 +241,7 @@ class GroupCard(QFrame):
         outer.setContentsMargins(0, 0, 0, 8)
         outer.setSpacing(0)
 
-        # Title bar
+       
         title_bar = QWidget()
         title_bar.setStyleSheet("background:#161b22; border-radius:8px 8px 0 0;")
         tb_lay = QHBoxLayout(title_bar)
@@ -259,12 +258,12 @@ class GroupCard(QFrame):
         tb_lay.addWidget(played_lbl)
         outer.addWidget(title_bar)
 
-        # Column header
+        
         hdr = _HeaderRow()
         hdr.setStyleSheet("background:#0d1117;")
         outer.addWidget(hdr)
 
-        # Rows
+      
         rows_w = QWidget()
         rows_w.setStyleSheet("background:#161b22;")
         rows_lay = QVBoxLayout(rows_w)
@@ -284,7 +283,7 @@ class GroupCard(QFrame):
 
         outer.addWidget(rows_w)
 
-        # Legend (one line at bottom of each card)
+        
         leg = QWidget()
         leg.setStyleSheet("background:#161b22;")
         leg_lay = QHBoxLayout(leg)
@@ -342,7 +341,7 @@ class GroupsPage(QWidget):
         matches = get_all_matches_with_teams()
         standings = compute_standings(teams, matches)
 
-        # Count finished group matches for status line
+     
         finished = sum(
             1 for m in matches
             if m.get("stage") == "Group Stage" and m.get("status") == "Finished"
@@ -358,7 +357,7 @@ class GroupsPage(QWidget):
 
         all_groups = list("ABCDEFGHIJKL")
 
-        # Fill groups that have teams but no matches yet
+       
         for grp in all_groups:
             if grp not in standings:
                 gt = [
@@ -384,11 +383,11 @@ class GroupsPage(QWidget):
             self._grid.addWidget(msg, 0, 0)
             return
 
-        # Count played per group
+      
         played_per_group: dict[str, int] = defaultdict(int)
         for m in matches:
             if m.get("stage") == "Group Stage" and m.get("status") == "Finished":
-                # Determine group from home team
+             
                 for t in teams:
                     if t["id"] == m.get("home_team_id"):
                         grp = (t.get("group_name") or "").strip().upper()
