@@ -44,7 +44,7 @@ def generate_report() -> str:
         get_favorite_teams, get_last_sync
     )
 
-    # ── Gather data ────────────────────────────────────────────────────────
+  
     stats   = get_watch_statistics()
     matches = get_all_matches_with_teams()
     favs    = get_favorite_teams()
@@ -59,7 +59,8 @@ def generate_report() -> str:
     watch_pct = int(watched / total * 100) if total else 0
     completion_pct = int(finished / total * 100) if total else 0
 
-    # Favourite stage (most watched stage)
+ 
+  
     from collections import Counter
     watched_stages = Counter(
         m.get("stage") for m in matches
@@ -67,13 +68,13 @@ def generate_report() -> str:
     )
     fav_stage = watched_stages.most_common(1)[0][0] if watched_stages else "N/A"
 
-    # ── Output path ────────────────────────────────────────────────────────
+
     out_path = os.path.join(os.path.expanduser("~"), "WorldCup2026_Report.pdf")
 
-    # ── Styles ─────────────────────────────────────────────────────────────
+ 
     styles = getSampleStyleSheet()
 
-    # Dark-ish palette translated to print-friendly equivalents
+   
     GREEN  = colors.HexColor("#2da44e")
     DARK   = colors.HexColor("#24292f")
     MID    = colors.HexColor("#57606a")
@@ -123,11 +124,11 @@ def generate_report() -> str:
         alignment=TA_CENTER,
     )
 
-    # ── Build flowables ────────────────────────────────────────────────────
+ 
     story = []
     W, H = A4
 
-    # Title block
+ 
     story.append(Spacer(1, 0.4 * cm))
     story.append(Paragraph("⚽  FIFA World Cup 2026", title_style))
     story.append(Paragraph("Personal Watch Report", sub_style))
@@ -137,7 +138,7 @@ def generate_report() -> str:
     story.append(HRFlowable(width="100%", thickness=1, color=GREEN))
     story.append(Spacer(1, 0.4 * cm))
 
-    # ── Summary stats table ────────────────────────────────────────────────
+   
     story.append(Paragraph("Tournament Overview", section_style))
 
     def pct_bar(value: int, maximum: int, color) -> Table:
@@ -188,7 +189,7 @@ def generate_report() -> str:
     story.append(tbl)
     story.append(Spacer(1, 0.3 * cm))
 
-    # Progress bars
+
     story.append(Paragraph("Progress Bars", section_style))
     for label, value, color in [
         ("Watched",  watched,  GREEN),
@@ -206,7 +207,7 @@ def generate_report() -> str:
         story.append(rt)
         story.append(Spacer(1, 0.15 * cm))
 
-    # ── Watched matches list ───────────────────────────────────────────────
+  
     watched_matches = [
         m for m in matches if m.get("user_watch_status") == "Watched"
     ]
@@ -239,7 +240,7 @@ def generate_report() -> str:
         ]))
         story.append(wt)
 
-    # ── Footer ─────────────────────────────────────────────────────────────
+   
     story.append(Spacer(1, 0.6 * cm))
     story.append(HRFlowable(width="100%", thickness=0.5, color=MID))
     story.append(Spacer(1, 0.2 * cm))
@@ -248,7 +249,7 @@ def generate_report() -> str:
         small_style
     ))
 
-    # ── Render ─────────────────────────────────────────────────────────────
+    
     try:
         doc = SimpleDocTemplate(
             out_path,
