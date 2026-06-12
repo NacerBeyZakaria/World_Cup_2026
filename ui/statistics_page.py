@@ -33,7 +33,7 @@ class PieChart(QWidget):
         y_off  = (h - size) // 2
         rect   = QRectF(x_off, y_off, size, size)
 
-        start_angle = 90 * 16   # 12 o'clock, in 1/16th degree units
+        start_angle = 90 * 16   
         for label, value, color in self.data:
             span = int(value / total * 360 * 16)
             if span == 0:
@@ -43,7 +43,7 @@ class PieChart(QWidget):
             painter.drawPie(rect, start_angle, -span)
             start_angle -= span
 
-        # Inner white circle (donut hole)
+        
         hole = size * 0.55
         hx   = x_off + (size - hole) / 2
         hy   = y_off + (size - hole) / 2
@@ -51,7 +51,7 @@ class PieChart(QWidget):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawEllipse(QRectF(hx, hy, hole, hole))
 
-        # Center text
+        
         painter.setPen(QColor("#e6edf3"))
         font = QFont()
         font.setPointSize(20)
@@ -147,11 +147,11 @@ class StatisticsPage(QWidget):
         title.setObjectName("sectionTitle")
         outer.addWidget(title)
 
-        # Main content row
+      
         content = QHBoxLayout()
         content.setSpacing(24)
 
-        # Left: pie chart
+
         left = QFrame()
         left.setObjectName("card")
         left.setFixedWidth(320)
@@ -171,11 +171,11 @@ class StatisticsPage(QWidget):
         left_lay.addStretch()
         content.addWidget(left)
 
-        # Right: detailed stats
+        
         right = QVBoxLayout()
         right.setSpacing(16)
 
-        # Stage breakdown card
+       
         self.stage_card = QFrame()
         self.stage_card.setObjectName("card")
         stage_lay = QVBoxLayout(self.stage_card)
@@ -191,7 +191,7 @@ class StatisticsPage(QWidget):
         stage_lay.addLayout(self.stage_progress_lay)
         right.addWidget(self.stage_card)
 
-        # Numbers card
+        
         self.numbers_card = QFrame()
         self.numbers_card.setObjectName("card")
         num_lay = QVBoxLayout(self.numbers_card)
@@ -232,7 +232,7 @@ class StatisticsPage(QWidget):
             pie_data = [("No Data", 1, "#30363d")]
         self.pie.update_data(pie_data)
 
-        # Legend
+        
         while self.legend_lay.count():
             item = self.legend_lay.takeAt(0)
             if item.widget():
@@ -247,7 +247,7 @@ class StatisticsPage(QWidget):
         ]:
             self.legend_lay.addWidget(LegendItem(color, label, value, total))
 
-        # Stage progress
+    
         while self.stage_progress_lay.count():
             item = self.stage_progress_lay.takeAt(0)
             if item.widget():
@@ -271,7 +271,7 @@ class StatisticsPage(QWidget):
                     ProgressBar(stage, wat, tot, color)
                 )
 
-        # Quick stats
+       
         while self.quick_stats_lay.count():
             item = self.quick_stats_lay.takeAt(0)
             if item.widget():
