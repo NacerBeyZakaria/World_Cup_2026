@@ -80,7 +80,7 @@ class SettingsPage(QWidget):
         self._build_ui()
         self._load()
 
-    # ── Build ──────────────────────────────────────────────────────────────
+    
 
     def _build_ui(self):
         outer = QVBoxLayout(self)
@@ -96,7 +96,7 @@ class SettingsPage(QWidget):
         title = QLabel("Settings"); title.setObjectName("sectionTitle")
         lay.addWidget(title)
 
-        # ── 1. API ─────────────────────────────────────────────────────────
+        
         api_card, api_lay = _card("API Configuration")
 
         sub = QLabel(
@@ -106,7 +106,7 @@ class SettingsPage(QWidget):
         sub.setWordWrap(True); sub.setStyleSheet("font-size:11px; color:#8b949e;")
         api_lay.addWidget(sub)
 
-        # Provider
+       
         p_row = QHBoxLayout()
         p_lbl = QLabel("Provider")
         p_lbl.setStyleSheet("font-size:12px; font-weight:600; min-width:90px;")
@@ -118,7 +118,7 @@ class SettingsPage(QWidget):
         p_row.addWidget(p_lbl); p_row.addWidget(self.prov_combo, 1)
         api_lay.addLayout(p_row)
 
-        # Info card
+       
         self._info_lbl = QLabel()
         self._info_lbl.setWordWrap(True)
         self._info_lbl.setStyleSheet(
@@ -134,7 +134,7 @@ class SettingsPage(QWidget):
         )
         api_lay.addWidget(self._limits_lbl)
 
-        # Signup link
+     
         self._signup_btn = QPushButton()
         self._signup_btn.setStyleSheet(
             "text-align:left; color:#58a6ff; background:transparent; border:none;"
@@ -144,7 +144,7 @@ class SettingsPage(QWidget):
         self._signup_btn.clicked.connect(self._open_signup)
         api_lay.addWidget(self._signup_btn)
 
-        # API Key
+    
         k_row = QHBoxLayout()
         k_lbl = QLabel("API Key")
         k_lbl.setStyleSheet("font-size:12px; font-weight:600; min-width:90px;")
@@ -175,7 +175,7 @@ class SettingsPage(QWidget):
         api_lay.addLayout(btn_row)
         lay.addWidget(api_card)
 
-        # ── 2. Favourite Teams ─────────────────────────────────────────────
+       
         fav_card, fav_lay = _card("⭐  Favourite Teams")
         fav_sub = QLabel(
             "Select your favourite teams. They appear on the Dashboard with "
@@ -185,7 +185,7 @@ class SettingsPage(QWidget):
         fav_sub.setStyleSheet("font-size:11px; color:#8b949e;")
         fav_lay.addWidget(fav_sub)
 
-        # Grid of checkboxes, grouped by group
+        
         self._fav_grid = QGridLayout()
         self._fav_grid.setSpacing(6)
         fav_lay.addLayout(self._fav_grid)
@@ -199,7 +199,7 @@ class SettingsPage(QWidget):
         fav_lay.addLayout(fav_btns)
         lay.addWidget(fav_card)
 
-        # ── 3. Appearance ──────────────────────────────────────────────────
+        
         app_card, app_lay = _card("Appearance")
         t_row = QHBoxLayout()
         t_lbl = QLabel("Theme")
@@ -211,7 +211,7 @@ class SettingsPage(QWidget):
         app_lay.addLayout(t_row)
         lay.addWidget(app_card)
 
-        # ── 4. Time & Region ───────────────────────────────────────────────
+       
         tz_card, tz_lay = _card("Time & Region")
         tz_row = QHBoxLayout()
         tz_lbl = QLabel("Timezone")
@@ -227,7 +227,7 @@ class SettingsPage(QWidget):
         tz_lay.addWidget(hint)
         lay.addWidget(tz_card)
 
-        # ── 5. Notifications & Export ──────────────────────────────────────
+      
         notif_card, notif_lay = _card("Notifications & Export")
         self.notif_check = QCheckBox(
             "Notify 30 min before Planned / Favourite / knockout matches"
@@ -252,7 +252,7 @@ class SettingsPage(QWidget):
         scroll.setWidget(content)
         outer.addWidget(scroll)
 
-    # ── Load ───────────────────────────────────────────────────────────────
+   
 
     def _load(self):
         self.api_key_input.setText(get_setting("api_key", ""))
@@ -278,7 +278,7 @@ class SettingsPage(QWidget):
         self._populate_fav_grid()
 
     def _populate_fav_grid(self):
-        # Clear existing checkboxes
+        
         while self._fav_grid.count():
             item = self._fav_grid.takeAt(0)
             if item.widget(): item.widget().deleteLater()
@@ -287,7 +287,7 @@ class SettingsPage(QWidget):
         teams = get_all_teams()
         fav_ids = set(get_favorite_team_ids())
 
-        # Group by group_name
+        
         from collections import defaultdict
         by_group: dict[str, list] = defaultdict(list)
         ungrouped = []
@@ -318,7 +318,7 @@ class SettingsPage(QWidget):
                 self._fav_grid.addWidget(cb, row, col)
                 row += 1
 
-            # Move to next column after 6 rows
+           
             if row > 14:
                 row = 0; col += 1
 
@@ -345,7 +345,7 @@ class SettingsPage(QWidget):
             cb.setChecked(False)
             remove_favorite_team(tid)
 
-    # ── Save ───────────────────────────────────────────────────────────────
+   
 
     def _save(self):
         set_setting("api_key",       self.api_key_input.text().strip())
@@ -361,7 +361,7 @@ class SettingsPage(QWidget):
             "Settings saved.\nClick 'Sync Now' in the sidebar to fetch live data."
         )
 
-    # ── Helpers ────────────────────────────────────────────────────────────
+    
 
     def _update_info_card(self):
         provider = self.prov_combo.currentData() or "football-data.org"
