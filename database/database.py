@@ -103,7 +103,7 @@ def _seed_default_settings():
             )
 
 
-# ─── Teams ────────────────────────────────────────────────────────────────────
+
 
 def upsert_team(api_team_id, fifa_code, name, group_name, flag_url):
     with db_cursor() as cur:
@@ -154,7 +154,7 @@ def get_matches_for_team(team_id: int) -> list[dict]:
         return [dict(r) for r in cur.fetchall()]
 
 
-# ─── Favourite teams ──────────────────────────────────────────────────────────
+
 
 def get_favorite_team_ids() -> list[int]:
     with db_cursor() as cur:
@@ -191,7 +191,7 @@ def is_favorite_team(team_id: int) -> bool:
         return cur.fetchone() is not None
 
 
-# ─── Matches ──────────────────────────────────────────────────────────────────
+
 
 def upsert_match(api_match_id, match_date, match_time, home_team_id, away_team_id,
                  stage, home_score, away_score, status, winner_team_id=None,
@@ -456,7 +456,7 @@ def get_distinct_match_dates() -> list[str]:
         return [r[0] for r in cur.fetchall()]
 
 
-# ─── Sync log ─────────────────────────────────────────────────────────────────
+
 
 def log_sync(source: str, records: int):
     from datetime import datetime, timezone
@@ -475,7 +475,7 @@ def get_last_sync() -> Optional[dict]:
         return dict(row) if row else None
 
 
-# ─── Settings ─────────────────────────────────────────────────────────────────
+
 
 def get_setting(key: str, default=None):
     with db_cursor() as cur:
