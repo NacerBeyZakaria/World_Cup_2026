@@ -36,7 +36,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-# ── Custom exceptions ──────────────────────────────────────────────────────────
+
 
 class APIError(Exception):
     """Raised when the API call cannot produce usable data."""
@@ -58,13 +58,13 @@ class RateLimitError(APIError):
     pass
 
 
-# ── football-data.org provider ─────────────────────────────────────────────────
+
 
 FD_BASE_URL      = "https://api.football-data.org/v4"
-FD_COMPETITION   = "WC"        # FIFA World Cup competition code
+FD_COMPETITION   = "WC"       
 FD_SEASON        = 2026
 
-# Map football-data.org stage strings → our internal labels
+
 _FD_STAGE_MAP = {
     "GROUP_STAGE":      "Group Stage",
     "LAST_32":          "Round of 32",
@@ -75,10 +75,10 @@ _FD_STAGE_MAP = {
     "FINAL":            "Final",
 }
 
-# Map football-data.org GROUP_X → "Group X" label stored in teams.group_name
+
 _FD_GROUP_MAP = {f"GROUP_{c}": c for c in "ABCDEFGHIJKL"}
 
-# Map football-data.org status → our three-state model
+
 _FD_STATUS_MAP = {
     "SCHEDULED":         "Scheduled",
     "TIMED":             "Scheduled",
@@ -112,7 +112,7 @@ class FootballDataService:
         self.session = requests.Session()
         self.session.headers.update({"X-Auth-Token": self.api_key})
 
-    # ── Internal HTTP helper ───────────────────────────────────────────────
+    
 
     def _get(self, path: str, params: dict = None) -> dict:
         """
@@ -158,8 +158,7 @@ class FootballDataService:
         except ValueError as exc:
             raise APIError(f"Unexpected non-JSON response from API: {exc}") from exc
 
-    # ── Public methods ─────────────────────────────────────────────────────
-
+    
     def fetch_teams(self) -> list[dict]:
         """
         GET /v4/competitions/WC/teams?season=2026
@@ -174,17 +173,16 @@ class FootballDataService:
                 "Try again after the draw or tournament begins."
             )
 
-        # The /teams endpoint includes group info on the season object
-        # as well as per-team area info.
+       
         results = []
         for t in teams_raw:
             results.append({
                 "api_team_id": t.get("id"),
-                "fifa_code":   t.get("tla", ""),            # 3-letter abbreviation
+                "fifa_code":   t.get("tla", ""),            
                 "name":        t.get("name", "Unknown"),
                 "short_name":  t.get("shortName", ""),
-                "flag_url":    t.get("crest", ""),           # SVG/PNG URL
-                "group_name":  None,                         # filled when we process fixtures
+                "flag_url":    t.get("crest", ""),           
+                "group_name":  None,                         
             })
         logger.info("football-data.org: fetched %d teams", len(results))
         return results
@@ -195,8 +193,7 @@ class FootballDataService:
         Returns all 104 WC 2026 matches as normalised dicts.
         Automatically paginates (football-data.org may paginate large responses).
         """
-        # football-data.org returns up to ~100 matches per request for WC by default.
-        # We request without date filter to get all; the API handles the full season.
+      
         data = self._get(f"/competitions/{FD_COMPETITION}/matches", {"season": FD_SEASON})
         matches_raw = data.get("matches", [])
         if not matches_raw:
@@ -214,7 +211,7 @@ class FootballDataService:
         GET /v4/competitions/WC/matches?status=IN_PLAY&status=PAUSED
         Returns only live matches.
         """
-        # football-data.org uses a single-status filter per call; we make two and merge.
+      
         live = []
         for status in ("IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"):
             try:
@@ -223,7 +220,7 @@ class FootballDataService:
                     {"season": FD_SEASON, "status": status},
                 )
                 live.extend(data.get("matches", []))
-                time.sleep(0.15)   # respect 10 req/min free tier
+                time.sleep(0.15)   
             except RateLimitError:
                 logger.warning("Rate limit during live-score poll; skipping status=%s", status)
                 break
@@ -281,7 +278,7 @@ class FootballDataService:
                 "team":    side,
                 "team_name": team_name,
                 "scorer":  scorer_obj.get("name", "Unknown"),
-                "type":    g.get("type", "REGULAR"),   # REGULAR | PENALTY | OWN
+                "type":    g.get("type", "REGULAR"),   
             })
 
         yellow_cards = []
@@ -315,13 +312,13 @@ class FootballDataService:
             yellow_cards=yellow_cards,
             red_cards=red_cards,
             substitutions=substitutions,
-            possession=None,           # not exposed on free tier
+            possession=None,           
             venue=data.get("venue", ""),
             attendance=data.get("attendance"),
             minute=data.get("minute"),
         )
 
-    # ── Normalisation ──────────────────────────────────────────────────────
+   
 
     def _normalise_match(self, m: dict) -> dict:
         """
@@ -348,17 +345,17 @@ class FootballDataService:
         score     = m.get("score") or {}
         full_time = score.get("fullTime") or {}
 
-        # Determine scores — prefer fullTime, fall back to regularTime during ET/PSO
+        
         hs = full_time.get("home")
         as_ = full_time.get("away")
 
-        # During live matches the score may be in score.regularTime
+        
         if hs is None or as_ is None:
             reg = score.get("regularTime") or {}
             hs  = hs  if hs  is not None else reg.get("home")
             as_ = as_ if as_ is not None else reg.get("away")
 
-        # Parse date/time
+     
         date_str = ""
         time_str = ""
         raw_date = m.get("utcDate", "")
@@ -370,28 +367,26 @@ class FootballDataService:
             except ValueError:
                 date_str = raw_date[:10]
 
-        # Stage → our internal label
+        
         stage_raw = m.get("stage", "GROUP_STAGE") or "GROUP_STAGE"
         stage     = _FD_STAGE_MAP.get(stage_raw, "Group Stage")
 
-        # Status → Scheduled | Live | Finished
+      
         status_raw = m.get("status", "SCHEDULED") or "SCHEDULED"
         status     = _FD_STATUS_MAP.get(status_raw, "Scheduled")
 
-        # Group letter for this match (null for knockout rounds)
-        group_raw  = m.get("group")                   # e.g. "GROUP_A"
+        
+        group_raw  = m.get("group")                   
         group_name = _FD_GROUP_MAP.get(group_raw, "") if group_raw else ""
 
-        # Winner — football-data.org doesn't give an explicit winner ID;
-        # we derive it from scores once the match is finished.
+     
         winner_api_id = None
         if status == "Finished" and hs is not None and as_ is not None:
             if hs > as_:
                 winner_api_id = home.get("id")
             elif as_ > hs:
                 winner_api_id = away.get("id")
-            # draws don't have a winner in the group stage;
-            # for knockouts the PSO winner is in score.winner ("HOME_TEAM"|"AWAY_TEAM")
+        
             score_winner = score.get("winner")
             if score_winner == "HOME_TEAM":
                 winner_api_id = home.get("id")
@@ -411,20 +406,20 @@ class FootballDataService:
             "home_code":     home.get("tla", ""),
             "away_code":     away.get("tla", ""),
             "stage":         stage,
-            "group_name":    group_name,         # "A" … "L" or ""
+            "group_name":    group_name,        
             "home_score":    hs,
             "away_score":    as_,
             "status":        status,
             "winner_api_id": winner_api_id,
             "venue":         m.get("venue") or "",
-            "city":          "",                 # football-data.org doesn't expose city separately
+            "city":          "",                
         }
 
 
-# ── API-Football (api-sports.io) provider ─────────────────────────────────────
+
 
 AF_BASE_URL  = "https://v3.football.api-sports.io"
-AF_LEAGUE_ID = 1       # FIFA World Cup on api-football
+AF_LEAGUE_ID = 1       
 AF_SEASON    = 2026
 
 _AF_STAGE_MAP = {
@@ -536,7 +531,7 @@ class APIFootballService:
                      substitutions=[], possession=None,
                      venue="", attendance=None, minute=None)
         try:
-            # Fixture detail for venue / minute
+            
             fix_data = self._get("fixtures", {"id": fixture_id})
             fix_list = fix_data.get("response", [])
             fix_obj  = fix_list[0] if fix_list else {}
@@ -548,7 +543,7 @@ class APIFootballService:
         except APIError:
             return empty
 
-        # Events
+    
         goals, yellow_cards, red_cards, substitutions = [], [], [], []
         try:
             ev_data = self._get("fixtures/events", {"fixture": fixture_id})
@@ -585,7 +580,7 @@ class APIFootballService:
         except APIError:
             pass
 
-        # Possession from statistics endpoint
+      
         possession = None
         try:
             stat_data = self._get("fixtures/statistics", {"fixture": fixture_id})
@@ -649,7 +644,7 @@ class APIFootballService:
         elif away.get("winner"):
             winner_api_id = away.get("id")
 
-        # Extract group letter from round string e.g. "Group Stage - 1" or "Group A"
+        
         group_name = ""
         for letter in "ABCDEFGHIJKL":
             if f"group {letter.lower()}" in round_raw:
@@ -679,7 +674,7 @@ class APIFootballService:
         }
 
 
-# ── Provider factory ───────────────────────────────────────────────────────────
+
 
 def get_service(provider: str, api_key: str):
     """
