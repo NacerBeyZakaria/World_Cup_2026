@@ -32,7 +32,7 @@ class MatchSlot(QFrame):
         lay.setContentsMargins(10, 8, 10, 8)
         lay.setSpacing(4)
 
-        # Determine winner
+      
         winner = None
         if status == "Finished" and home_score is not None and away_score is not None:
             if home_score > away_score:
@@ -70,7 +70,7 @@ class MatchSlot(QFrame):
 
         lay.addLayout(team_row(away, away_score, winner == "away"))
 
-        # Status badge
+       
         if status == "Live":
             badge = QLabel("🔴 LIVE")
             badge.setStyleSheet("font-size:9px; color:#da3633; font-weight:700;")
