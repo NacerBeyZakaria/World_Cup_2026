@@ -20,7 +20,7 @@ from database.database import get_upcoming_notification_matches, get_setting
 
 logger = logging.getLogger(__name__)
 
-# Match IDs we've already notified about this session
+
 _notified: set[int] = set()
 
 
@@ -62,6 +62,5 @@ def _fire(title: str, message: str):
             timeout=10,
         )
     except Exception as exc:
-        # Plyer can fail on headless systems or when the notification daemon
-        # is unavailable — we log and move on silently.
+      
         logger.debug("Desktop notification failed: %s", exc)
