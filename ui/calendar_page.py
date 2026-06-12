@@ -22,7 +22,6 @@ class CalendarPage(QWidget):
         outer.setContentsMargins(28, 24, 28, 24)
         outer.setSpacing(20)
 
-        # Left: calendar
         left = QVBoxLayout()
         title = QLabel("Calendar")
         title.setObjectName("sectionTitle")
@@ -46,7 +45,7 @@ class CalendarPage(QWidget):
         left.addStretch()
         outer.addLayout(left)
 
-        # Right: matches for selected day
+        
         right = QVBoxLayout()
         self.day_title = QLabel("Select a day")
         self.day_title.setObjectName("sectionTitle")
@@ -65,8 +64,7 @@ class CalendarPage(QWidget):
         outer.addLayout(right, 1)
 
     def refresh(self):
-        # Build a mapping of local date → list of matches (respects user timezone)
-        # A match stored as UTC 2026-06-11 23:00 appears on 2026-06-12 for UTC+1 users.
+        
         all_matches = get_all_matches_with_teams()
         self._local_date_matches: dict[str, list] = {}
         for m in all_matches:
@@ -78,7 +76,7 @@ class CalendarPage(QWidget):
 
         self._match_dates = set(self._local_date_matches.keys())
 
-        # Jump to first match day
+        
         if self._match_dates:
             first = min(self._match_dates)
             try:
@@ -100,20 +98,19 @@ class CalendarPage(QWidget):
         except Exception:
             label = date_str
 
-        # Append timezone label when not UTC
+        
         from database.database import get_setting
         tz = (get_setting("timezone", "UTC") or "UTC").split(" ")[0]
         if tz != "UTC":
             label += f"  ({tz})"
         self.day_title.setText(label)
 
-        # Clear
         while self.matches_layout.count():
             item = self.matches_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
 
-        # Use local-date mapping built in refresh()
+        
         matches = getattr(self, "_local_date_matches", {}).get(date_str, [])
         if not matches:
             no_match = QLabel("No matches on this day.")
