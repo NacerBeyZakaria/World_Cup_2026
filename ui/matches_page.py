@@ -35,7 +35,7 @@ class MatchCard(QFrame):
         lay.setContentsMargins(16, 11, 16, 11)
         lay.setSpacing(12)
 
-        # Time + venue
+       
         info = QVBoxLayout(); info.setSpacing(2)
         info.setAlignment(Qt.AlignmentFlag.AlignTop)
         kick = format_kickoff(m.get("match_date",""), m.get("match_time",""))
@@ -49,7 +49,7 @@ class MatchCard(QFrame):
             info.addWidget(vl)
         lay.addLayout(info)
 
-        # Teams + score
+      
         center = QHBoxLayout(); center.setSpacing(8)
         center.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -73,7 +73,7 @@ class MatchCard(QFrame):
         center.addWidget(home_lbl); center.addWidget(sc); center.addWidget(away_lbl)
         lay.addLayout(center, 1)
 
-        # Right: badges + watch btn
+       
         right = QVBoxLayout(); right.setSpacing(5)
         right.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
 
@@ -144,13 +144,13 @@ class MatchesPage(QWidget):
         outer.setContentsMargins(28, 24, 28, 24)
         outer.setSpacing(14)
 
-        # Header
+        
         hdr = QHBoxLayout()
         title = QLabel("Matches"); title.setObjectName("sectionTitle")
         hdr.addWidget(title); hdr.addStretch()
         outer.addLayout(hdr)
 
-        # Filter bar
+        
         fil = QHBoxLayout(); fil.setSpacing(8)
         self.search = QLineEdit()
         self.search.setPlaceholderText("🔍  Search by team name…")
