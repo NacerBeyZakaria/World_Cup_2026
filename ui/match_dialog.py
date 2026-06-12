@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 WATCH_OPTIONS = ["Not Set", "Watched", "Missed", "Planned", "Favorite"]
 
-# One shared NAM per process — safe because we never use it across threads
+
 _NAM: QNetworkAccessManager | None = None
 
 def _get_nam() -> QNetworkAccessManager:
@@ -48,7 +48,7 @@ def _get_nam() -> QNetworkAccessManager:
     return _NAM
 
 
-# ── Flag widget ────────────────────────────────────────────────────────────────
+
 
 class FlagWidget(QWidget):
     """
@@ -69,20 +69,20 @@ class FlagWidget(QWidget):
         self._provider = provider
         self._api_key  = api_key
 
-        # SVG container (shown when SVG data loads)
+       
         self._svg = QSvgWidget(self)
         self._svg.setFixedSize(self.SIZE, self.SIZE)
         self._svg.move(2, 2)
         self._svg.hide()
 
-        # PNG pixmap label (shown when PNG data loads)
+        
         self._img = QLabel(self)
         self._img.setFixedSize(self.SIZE, self.SIZE)
         self._img.move(2, 2)
         self._img.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._img.hide()
 
-        # Fallback badge (shown until a real image loads, or on failure)
+        
         self._fallback = QLabel(self._code, self)
         self._fallback.setFixedSize(self.SIZE, self.SIZE)
         self._fallback.move(2, 2)
@@ -94,7 +94,7 @@ class FlagWidget(QWidget):
         self._fallback.show()
 
         if self._url:
-            QTimer.singleShot(0, self._fetch)   # defer until event loop running
+            QTimer.singleShot(0, self._fetch)  
 
     def _fetch(self):
         req = QNetworkRequest(QUrl(self._url))
@@ -102,7 +102,7 @@ class FlagWidget(QWidget):
             QNetworkRequest.Attribute.RedirectPolicyAttribute,
             QNetworkRequest.RedirectPolicy.NoLessSafeRedirectPolicy
         )
-        # football-data.org crests require the API token as auth header
+        
         if self._provider == "football-data.org" and self._api_key:
             req.setRawHeader(b"X-Auth-Token", self._api_key.encode())
         req.setRawHeader(b"User-Agent", b"WC2026Tracker/1.0")
@@ -112,7 +112,7 @@ class FlagWidget(QWidget):
     def _on_reply(self, reply: QNetworkReply):
         try:
             if reply.error() != QNetworkReply.NetworkError.NoError:
-                return  # keep fallback
+                return  
             data = bytes(reply.readAll())
             if not data:
                 return
@@ -141,7 +141,7 @@ class FlagWidget(QWidget):
             reply.deleteLater()
 
 
-# ── Venue worker (lightweight — free tier safe) ────────────────────────────────
+
 
 class _VenueWorker(QObject):
     """
@@ -185,7 +185,7 @@ class _VenueWorker(QObject):
         self.finished.emit(venue)
 
 
-# ── Events worker ──────────────────────────────────────────────────────────────
+
 
 class _EventsWorker(QObject):
     """
@@ -214,7 +214,7 @@ class _EventsWorker(QObject):
             self.finished.emit(empty)
 
 
-# ── Small UI helpers ───────────────────────────────────────────────────────────
+
 
 def _hline() -> QFrame:
     f = QFrame()
@@ -329,7 +329,7 @@ def _possession_bar(home_name: str, home_pct: int,
     return w
 
 
-# ── Main dialog ────────────────────────────────────────────────────────────────
+
 
 class MatchDialog(QDialog):
     watch_status_changed = pyqtSignal(int, str)
@@ -359,7 +359,7 @@ class MatchDialog(QDialog):
             lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
             QVBoxLayout(self).addWidget(lbl)
 
-    # ── Build ──────────────────────────────────────────────────────────────
+    
 
     def _build(self):
         m      = self._match
@@ -370,7 +370,7 @@ class MatchDialog(QDialog):
         outer.setSpacing(10)
         self._outer = outer
 
-        # ① Stage + status badges ─────────────────────────────────────────
+        
         top = QHBoxLayout()
         top.addWidget(_badge(m.get("stage", ""), "#8b949e", "#21262d"))
         top.addStretch()
@@ -382,7 +382,7 @@ class MatchDialog(QDialog):
             top.addWidget(_badge("Scheduled", "#58a6ff", "#1c2f4a"))
         outer.addLayout(top)
 
-        # ② Score block with flags ────────────────────────────────────────
+       
         score_frame = QFrame()
         score_frame.setStyleSheet(
             "background:#161b22; border-radius:10px; border:1px solid #21262d;"
@@ -401,7 +401,7 @@ class MatchDialog(QDialog):
             col.setSpacing(6)
             col.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
-            # Flag row
+           
             fl = QHBoxLayout()
             fl.setContentsMargins(0, 0, 0, 0)
             fw = FlagWidget(
@@ -412,7 +412,7 @@ class MatchDialog(QDialog):
             fl.addWidget(fw, 0, flag_align)
             col.addLayout(fl)
 
-            # Name
+            
             nl = QLabel(name or "TBD")
             nl.setAlignment(name_align)
             nl.setWordWrap(True)
@@ -430,7 +430,7 @@ class MatchDialog(QDialog):
             ), 2
         )
 
-        # Score / vs
+        
         hs, as_ = m.get("home_score"), m.get("away_score")
         sc_col  = QVBoxLayout()
         sc_col.setAlignment(AC)
@@ -454,7 +454,7 @@ class MatchDialog(QDialog):
         )
         outer.addWidget(score_frame)
 
-        # ③ Info rows ─────────────────────────────────────────────────────
+      
         outer.addWidget(_hline())
 
         tz_str = (get_setting("timezone", "UTC") or "UTC").split(" ")[0]
@@ -475,7 +475,7 @@ class MatchDialog(QDialog):
         ]:
             outer.addLayout(row)
 
-        # Venue — show DB value immediately; worker may enrich it
+       
         venue_val  = (m.get("venue") or "").strip()
         city_val   = (m.get("city")  or "").strip()
         if venue_val and city_val:
@@ -485,14 +485,14 @@ class MatchDialog(QDialog):
         elif city_val:
             venue_text = city_val
         else:
-            venue_text = ""   # worker will try to fill this
+            venue_text = ""  
 
         venue_row, self._venue_lbl = _info_row("🏟️", "Venue", venue_text or "—")
         outer.addLayout(venue_row)
 
         outer.addWidget(_hline())
 
-        # ④ Events area ───────────────────────────────────────────────────
+        
         self._events_scroll = QScrollArea()
         self._events_scroll.setWidgetResizable(True)
         self._events_scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -505,7 +505,7 @@ class MatchDialog(QDialog):
         self._events_scroll.setWidget(self._ev_container)
         outer.addWidget(self._events_scroll, 1)
 
-        # ⑤ Watch status ──────────────────────────────────────────────────
+       
         outer.addWidget(_hline())
         ws_row = QHBoxLayout()
         wl = QLabel("Watch Status")
@@ -527,7 +527,7 @@ class MatchDialog(QDialog):
         ws_row.addStretch()
         outer.addLayout(ws_row)
 
-        # Close
+    
         outer.addSpacing(2)
         close_btn = QPushButton("Close")
         close_btn.setStyleSheet(
@@ -538,11 +538,10 @@ class MatchDialog(QDialog):
         close_btn.clicked.connect(self.accept)
         outer.addWidget(close_btn, 0, Qt.AlignmentFlag.AlignRight)
 
-        # Kick off background work
+      k
         self._start_background_work(status, venue_text)
 
-    # ── Background work orchestration ──────────────────────────────────────
-
+   
     def _start_background_work(self, status: str, existing_venue: str):
         """
         Always fetch venue via lightweight worker (free tier safe).
@@ -551,9 +550,7 @@ class MatchDialog(QDialog):
         """
         api_match_id = self._match.get("api_match_id")
 
-        # ── Venue worker ───────────────────────────────────────────────────
-        # Run even if we already have a venue — the single-match endpoint may
-        # return a richer or more accurate value than the bulk fixtures list.
+      
         if self._api_key and api_match_id:
             self._v_thread = QThread()
             self._v_worker = _VenueWorker(api_match_id, self._provider, self._api_key)
@@ -563,7 +560,7 @@ class MatchDialog(QDialog):
             self._v_worker.finished.connect(self._v_thread.quit)
             self._v_thread.start()
 
-        # ── Events area ────────────────────────────────────────────────────
+       
         if not self._api_key:
             self._set_ev_placeholder(
                 "ℹ️  Add an API key in Settings to see match events.",
@@ -580,7 +577,7 @@ class MatchDialog(QDialog):
             return
 
         if self._provider == "football-data.org":
-            # Tier limitation — informational, not an error
+         
             self._set_ev_placeholder(
                 "ℹ️  Detailed match events (goals, cards, substitutions)\n"
                 "require a Tier 2 or higher plan on football-data.org.\n\n"
@@ -590,7 +587,7 @@ class MatchDialog(QDialog):
             )
             return
 
-        # API-Football with Finished/Live match — fetch full events
+    
         if not api_match_id:
             self._set_ev_placeholder("No API match ID stored for this fixture.")
             return
@@ -604,7 +601,7 @@ class MatchDialog(QDialog):
         self._e_worker.finished.connect(self._e_thread.quit)
         self._e_thread.start()
 
-    # ── Slot: venue ────────────────────────────────────────────────────────
+    
 
     def _on_venue_ready(self, venue: str):
         if not venue:
@@ -615,7 +612,7 @@ class MatchDialog(QDialog):
         else:
             self._venue_lbl.setText(venue)
 
-    # ── Slot: events ───────────────────────────────────────────────────────
+
 
     def _on_events_ready(self, events: dict):
         self._clear_ev()
@@ -626,7 +623,7 @@ class MatchDialog(QDialog):
             )
             return
 
-        # Update venue if API returned a richer value
+       
         api_venue = (events.get("venue") or "").strip()
         if api_venue:
             city = (self._match.get("city") or "").strip()
@@ -639,7 +636,7 @@ class MatchDialog(QDialog):
         away = self._match.get("away_team_name", "Away")
         has  = False
 
-        # Goals
+     
         goals = events.get("goals", [])
         if goals:
             has = True
@@ -652,7 +649,7 @@ class MatchDialog(QDialog):
                     _event_row(icon, g.get("minute"), g.get("scorer", ""), side)
                 )
 
-        # Yellow cards
+        
         yellows = events.get("yellow_cards", [])
         if yellows:
             has = True
@@ -662,7 +659,7 @@ class MatchDialog(QDialog):
                     _event_row("🟨", c.get("minute"), c.get("player", ""), c.get("team", ""))
                 )
 
-        # Red cards
+      
         reds = events.get("red_cards", [])
         if reds:
             has = True
@@ -672,7 +669,7 @@ class MatchDialog(QDialog):
                     _event_row("🟥", c.get("minute"), c.get("player", ""), c.get("team", ""))
                 )
 
-        # Possession
+        
         poss = events.get("possession")
         if poss:
             has = True
@@ -682,7 +679,7 @@ class MatchDialog(QDialog):
                                 away, poss.get("away", 50))
             )
 
-        # Substitutions
+        
         subs = events.get("substitutions", [])
         if subs:
             has = True
@@ -699,7 +696,7 @@ class MatchDialog(QDialog):
             )
         self._ev_lay.addStretch()
 
-    # ── Helpers ────────────────────────────────────────────────────────────
+    
 
     def _clear_ev(self):
         while self._ev_lay.count():
