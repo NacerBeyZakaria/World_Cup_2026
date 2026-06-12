@@ -28,7 +28,7 @@ from database.database import (
 from ui.tz_utils import format_kickoff, convert_match_time
 
 
-# ── Reusable helpers ───────────────────────────────────────────────────────────
+
 
 def _section(title: str) -> QLabel:
     lbl = QLabel(title)
@@ -75,7 +75,7 @@ class _ProgressBar(QWidget):
         self._fill.setFixedWidth(max(7, int(self._track.width() * self._pct)))
 
 
-# ── Stat card ──────────────────────────────────────────────────────────────────
+
 
 class StatCard(QFrame):
     def __init__(self, number: str, label: str, color: str = "#e6edf3",
@@ -107,7 +107,7 @@ class StatCard(QFrame):
     def set_value(self, v: str): self._num.setText(v)
 
 
-# ── Countdown widget ───────────────────────────────────────────────────────────
+
 
 class CountdownWidget(QFrame):
     """Shows 'Next match in Xh Ym' and ticks every minute."""
@@ -143,7 +143,7 @@ class CountdownWidget(QFrame):
 
         self._match = None
 
-        # Tick every 60 s
+       
         self._timer = QTimer(self)
         self._timer.setInterval(60_000)
         self._timer.timeout.connect(self._tick)
@@ -171,7 +171,7 @@ class CountdownWidget(QFrame):
         stage = self._match.get("stage", "")
         self._time_lbl.setText(f"{kick}  ·  {stage}")
 
-        # Countdown
+        
         try:
             dt_str = (
                 f"{self._match['match_date']} {self._match['match_time']}"
@@ -194,7 +194,7 @@ class CountdownWidget(QFrame):
             self._countdown_lbl.setText("")
 
 
-# ── Favourite team panel ───────────────────────────────────────────────────────
+
 
 class FavouritePanel(QFrame):
     def __init__(self):
@@ -222,7 +222,7 @@ class FavouritePanel(QFrame):
             self._lay.addWidget(lbl)
             return
 
-        # Team names row
+        
         names = QLabel("  ·  ".join(t["name"] for t in favs))
         names.setStyleSheet("font-size:13px; font-weight:700; color:#e6edf3;")
         names.setWordWrap(True)
@@ -230,7 +230,7 @@ class FavouritePanel(QFrame):
 
         self._lay.addWidget(_sep())
 
-        # Next match
+      
         nm_hdr = QLabel("NEXT MATCH")
         nm_hdr.setStyleSheet("font-size:10px; color:#8b949e; letter-spacing:1px;")
         self._lay.addWidget(nm_hdr)
@@ -252,7 +252,7 @@ class FavouritePanel(QFrame):
             nm_lbl.setStyleSheet("font-size:12px; color:#484f58;")
         self._lay.addWidget(nm_lbl)
 
-        # Last result
+       
         lr_hdr = QLabel("LAST RESULT")
         lr_hdr.setStyleSheet(
             "font-size:10px; color:#8b949e; letter-spacing:1px; margin-top:4px;"
@@ -275,7 +275,7 @@ class FavouritePanel(QFrame):
         self._lay.addStretch()
 
 
-# ── Today's match mini-card ────────────────────────────────────────────────────
+
 
 class TodayMatchCard(QFrame):
     def __init__(self, match: dict):
@@ -288,20 +288,20 @@ class TodayMatchCard(QFrame):
         lay.setContentsMargins(14, 10, 14, 10)
         lay.setSpacing(10)
 
-        # Time
+       
         kick = format_kickoff(match.get("match_date",""), match.get("match_time",""))
         tl = QLabel(kick)
         tl.setStyleSheet("color:#8b949e; font-size:11px; min-width:70px;")
         lay.addWidget(tl)
 
-        # Teams
+        
         tms = QLabel(
             f"{match.get('home_team_name','?')}  vs  {match.get('away_team_name','?')}"
         )
         tms.setStyleSheet("font-weight:600; font-size:12px;")
         lay.addWidget(tms, 1)
 
-        # Score / vs
+      
         hs, as_ = match.get("home_score"), match.get("away_score")
         if hs is not None and as_ is not None:
             sc = QLabel(f"{hs}  –  {as_}")
@@ -311,7 +311,7 @@ class TodayMatchCard(QFrame):
             sc.setStyleSheet("color:#484f58; font-size:12px;")
         lay.addWidget(sc)
 
-        # Status badge
+       
         status = match.get("status", "Scheduled")
         if status == "Live":
             sb = QLabel("🔴 LIVE")
@@ -345,7 +345,7 @@ class TodayMatchCard(QFrame):
         super().mousePressEvent(event)
 
 
-# ── Main dashboard ─────────────────────────────────────────────────────────────
+
 
 class DashboardPage(QWidget):
     def __init__(self, parent=None):
@@ -354,7 +354,7 @@ class DashboardPage(QWidget):
         self.refresh()
 
     def _build_ui(self):
-        # Outer scroll so it works at any height
+     
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
@@ -367,7 +367,7 @@ class DashboardPage(QWidget):
         lay.setContentsMargins(28, 24, 28, 24)
         lay.setSpacing(20)
 
-        # ── Header ─────────────────────────────────────────────────────────
+      
         hdr = QHBoxLayout()
         title = QLabel("Dashboard")
         title.setObjectName("sectionTitle")
@@ -376,7 +376,7 @@ class DashboardPage(QWidget):
         hdr.addWidget(title); hdr.addStretch(); hdr.addWidget(self._sync_lbl)
         lay.addLayout(hdr)
 
-        # ── Stat cards (2 rows × 3) ────────────────────────────────────────
+      
         grid = QGridLayout(); grid.setSpacing(12)
         self._c_total   = StatCard("—", "TOTAL MATCHES",    "#e6edf3", "🏆")
         self._c_watched = StatCard("—", "WATCHED",          "#3fb950", "✅")
@@ -395,7 +395,7 @@ class DashboardPage(QWidget):
             grid.addWidget(card, 1, col)
         lay.addLayout(grid)
 
-        # ── Tournament progress ────────────────────────────────────────────
+        
         lay.addWidget(_section("Tournament Progress"))
         prog_card = QFrame(); prog_card.setObjectName("card")
         pc_lay = QVBoxLayout(prog_card); pc_lay.setContentsMargins(18,14,18,14)
@@ -414,7 +414,7 @@ class DashboardPage(QWidget):
         self._prog_track = prog_track
         lay.addWidget(prog_card)
 
-        # ── Middle row: Countdown + Favourites ────────────────────────────
+      
         mid = QHBoxLayout(); mid.setSpacing(12)
         self._countdown = CountdownWidget()
         self._countdown.setMinimumHeight(120)
@@ -425,7 +425,7 @@ class DashboardPage(QWidget):
         mid.addWidget(self._fav_panel, 2)
         lay.addLayout(mid)
 
-        # ── Today's matches ────────────────────────────────────────────────
+      
         today_hdr = QHBoxLayout()
         today_hdr.addWidget(_section("Today's Matches"))
         self._today_count = QLabel("")
@@ -439,7 +439,7 @@ class DashboardPage(QWidget):
         self._today_lay.setSpacing(6)
         lay.addWidget(self._today_container)
 
-        # ── Watch progress bars ────────────────────────────────────────────
+        
         lay.addWidget(_section("Watch Progress"))
         self._wprog_frame = QFrame(); self._wprog_frame.setObjectName("card")
         self._wprog_lay = QVBoxLayout(self._wprog_frame)
@@ -451,7 +451,6 @@ class DashboardPage(QWidget):
         scroll.setWidget(content)
         outer.addWidget(scroll)
 
-    # ── Refresh ────────────────────────────────────────────────────────────
 
     def refresh(self):
         stats   = get_watch_statistics()
@@ -470,29 +469,29 @@ class DashboardPage(QWidget):
         self._c_fav.set_value(str(fav_cnt))
         self._c_pct.set_value(f"{pct}%")
 
-        # Tournament progress bar
+     
         comp_pct = int(finished / total * 100) if total else 0
         self._prog_label.setText(
             f"{finished} / {total} matches completed  ·  {comp_pct}%"
         )
-        # Resize fill after layout settles
+        
         QTimer.singleShot(
             50, lambda: self._prog_fill.setFixedWidth(
                 max(0, int(self._prog_track.width() * comp_pct / 100))
             )
         )
 
-        # Countdown
+        
         next_m = get_next_match()
         self._countdown.load(next_m)
 
-        # Favourite panel
+      
         favs       = get_favorite_teams()
         next_fav   = get_next_favorite_match()
         last_result= get_last_favorite_result()
         self._fav_panel.load(favs, next_fav, last_result)
 
-        # Today's matches
+       
         while self._today_lay.count():
             item = self._today_lay.takeAt(0)
             if item.widget(): item.widget().deleteLater()
@@ -509,7 +508,7 @@ class DashboardPage(QWidget):
             f"{len(today)} match{'es' if len(today) != 1 else ''}"
         )
 
-        # Watch progress bars
+        
         while self._wprog_lay.count():
             item = self._wprog_lay.takeAt(0)
             if item.widget(): item.widget().deleteLater()
@@ -523,7 +522,7 @@ class DashboardPage(QWidget):
                 _ProgressBar(label, value, total or 1, color)
             )
 
-        # Sync label
+        
         last = get_last_sync()
         if last:
             self._sync_lbl.setText(
