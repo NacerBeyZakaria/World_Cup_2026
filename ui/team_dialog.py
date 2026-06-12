@@ -91,7 +91,7 @@ class TeamDialog(QDialog):
         outer.setContentsMargins(24, 20, 24, 20)
         outer.setSpacing(14)
 
-        # ── Header: name + favourite star ─────────────────────────────────
+       
         hdr = QHBoxLayout()
         name_lbl = QLabel(team["name"])
         name_lbl.setStyleSheet("font-size:20px; font-weight:800;")
@@ -109,7 +109,7 @@ class TeamDialog(QDialog):
         self._refresh_fav_btn()
         outer.addLayout(hdr)
 
-        # ── Meta badges ────────────────────────────────────────────────────
+      
         meta = QHBoxLayout()
         meta.setSpacing(8)
         group = team.get("group_name", "")
@@ -134,7 +134,7 @@ class TeamDialog(QDialog):
 
         outer.addWidget(_sep())
 
-        # ── Standing stats ─────────────────────────────────────────────────
+        
         s = _compute_team_standing(self._team_id)
         pos = _group_position(self._team_id, group) if group else 0
 
@@ -181,7 +181,7 @@ class TeamDialog(QDialog):
         outer.addWidget(stats_frame)
         outer.addWidget(_sep())
 
-        # ── Fixtures list (scrollable) ─────────────────────────────────────
+        
         fix_title = QLabel("Fixtures & Results")
         fix_title.setStyleSheet("font-size:13px; font-weight:700;")
         outer.addWidget(fix_title)
@@ -206,7 +206,7 @@ class TeamDialog(QDialog):
         scroll.setWidget(inner)
         outer.addWidget(scroll, 1)
 
-        # ── Close ──────────────────────────────────────────────────────────
+     
         close_btn = QPushButton("Close")
         close_btn.setStyleSheet(
             "background:#21262d; color:#e6edf3; border:1px solid #30363d;"
@@ -225,13 +225,13 @@ class TeamDialog(QDialog):
         lay.setContentsMargins(10, 7, 10, 7)
         lay.setSpacing(10)
 
-        # Date + time
+       
         kick = format_kickoff(m.get("match_date", ""), m.get("match_time", ""))
         date_lbl = QLabel(f"{m.get('match_date', '')}  {kick}")
         date_lbl.setStyleSheet("color:#8b949e; font-size:10px; min-width:100px;")
         lay.addWidget(date_lbl)
 
-        # Teams + score
+    
         hs, as_ = m.get("home_score"), m.get("away_score")
         is_home = m.get("home_team_id") == team_id
         opp = m.get("away_team_name" if is_home else "home_team_name", "TBD")
@@ -242,10 +242,10 @@ class TeamDialog(QDialog):
         match_lbl.setStyleSheet("font-size:11px; font-weight:600;")
         lay.addWidget(match_lbl, 1)
 
-        # Score / result indicator
+      
         if hs is not None and as_ is not None:
             sc_lbl = QLabel(f"{hs} – {as_}")
-            # Determine W/D/L from this team's perspective
+           
             team_score = hs if is_home else as_
             opp_score  = as_ if is_home else hs
             if team_score > opp_score:
@@ -260,7 +260,7 @@ class TeamDialog(QDialog):
             sc_lbl.setStyleSheet("color:#484f58; font-size:12px;")
         lay.addWidget(sc_lbl)
 
-        # Status badge
+     
         status = m.get("status", "")
         if status == "Live":
             sb = QLabel("LIVE")
