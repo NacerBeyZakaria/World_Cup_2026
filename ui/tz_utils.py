@@ -11,7 +11,7 @@ import re
 from datetime import datetime, timedelta, timezone, date as _date
 from database.database import get_setting
 
-# Regex to parse "UTC+H", "UTC-H:MM", etc.
+
 _OFFSET_RE = re.compile(r'^UTC([+-])(\d{1,2})(?::(\d{2}))?$')
 
 
@@ -26,7 +26,7 @@ def _parse_offset_minutes(tz_str: str) -> int:
     """
     if not tz_str:
         return 0
-    # Strip trailing labels like " (CET)"
+    
     tz_str = tz_str.split(" ")[0].strip()
     if tz_str == "UTC":
         return 0
